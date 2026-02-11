@@ -55,6 +55,10 @@ model Tenant {
   plan        Plan     @default(STARTER)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  // Data retention settings
+  dataRetentionDays Int      @default(15)  // Auto-delete caller data after X days
+  saveCallRecordings Boolean @default(false) // Store recordings or not
 
   // Relations
   users        User[]
@@ -150,12 +154,17 @@ model Caller {
   firstCallAt DateTime @default(now())
   lastCallAt  DateTime @default(now())
   totalCalls  Int      @default(1)
+  
+  // Data retention
+  isSaved     Boolean  @default(false)  // Business saved this caller
+  expiresAt   DateTime?                 // Auto-delete after this date
 
   calls       Call[]
 
   @@unique([tenantId, phoneNumber])
   @@index([tenantId])
   @@index([phoneNumber])
+  @@index([expiresAt])
 }
 
 // ============================================
@@ -737,7 +746,23 @@ PUT    /v1/admin/tenants/:id/plan        → Change plan
 - [ ] Postman collection
 - [ ] Deployment guide
 
-**6.4 Deployment**
+**6.4 Data Retention & Cleanup**
+- [ ] Create `src/jobs/data-cleanup.job.ts`
+- [ ] Scheduled job to delete expired caller data (runs daily)
+- [ ] Delete unsaved callers after `dataRetentionDays`
+- [ ] Delete call transcripts and extractions
+- [ ] Optional: Archive before delete
+- [ ] Add `isSaved` logic to prevent deletion
+
+```typescript
+// Cleanup job logic
+- Find all callers where expiresAt < NOW() AND isSaved = false
+- Delete associated calls, transcripts, extractions
+- Delete caller record
+- Log cleanup statistics
+```
+
+**6.5 Deployment**
 - [ ] Docker setup
 - [ ] Environment configuration
 - [ ] Database migration strategy
@@ -746,6 +771,7 @@ PUT    /v1/admin/tenants/:id/plan        → Change plan
 - Production ready
 - Fully documented
 - Monitored
+- GDPR/privacy compliant
 
 ---
 
@@ -784,6 +810,8 @@ DELETE /v1/tenants/:id/phone-numbers/:nid
 GET    /v1/tenants/:id/callers
 GET    /v1/tenants/:id/callers/:cid
 PUT    /v1/tenants/:id/callers/:cid
+POST   /v1/tenants/:id/callers/:cid/save      → Save caller (prevent deletion)
+POST   /v1/tenants/:id/callers/:cid/unsave    → Unsave caller (allow deletion)
 
 # Calls
 GET    /v1/tenants/:id/calls
@@ -986,6 +1014,9 @@ src/
 3. **Local Recording Storage** → User downloads, auto-delete after 30 days
 4. **AES Encryption** → Simple, no external services
 5. **Provider Config in AgentConfig** → Single table, simpler
+6. **Data Retention** → Auto-delete caller data after 15 days (configurable per tenant)
+7. **Save/Pin Callers** → Business can "save" important callers to prevent deletion
+8. **No SMS** → Focus on voice calls only for MVP
 
 ---
 
