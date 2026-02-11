@@ -24,3 +24,6 @@ dist/
 
 info.txt
 src/logs/*
+
+# Internal documentation
+AGENTS.md
