@@ -5,6 +5,7 @@ import helmet from 'helmet';
 
 import agentConfigRoutes from './features/agent-config/routes/agent-config.routes';
 import authRoutes from './features/auth/routes/auth.routes';
+import phoneNumberRoutes from './features/phone-numbers/routes/phone-number.routes';
 import tenantRoutes from './features/tenant/routes/tenant.routes';
 import userRoutes from './features/tenant-users/routes/user.routes';
 import testRoutes from './features/test/routes/test.routes';
@@ -43,6 +44,7 @@ app.use('/v1/auth', authRoutes);
 app.use('/v1/tenants', tenantRoutes);
 app.use('/v1/tenants/:tenantId/users', userRoutes);
 app.use('/v1/tenants/:tenantId/agent-config', agentConfigRoutes);
+app.use('/v1/tenants/:tenantId/phone-numbers', phoneNumberRoutes);
 
 // ─── Testing Routes (development only) ───
 app.use('/test', testRoutes);
