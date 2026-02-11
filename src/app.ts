@@ -4,6 +4,7 @@ import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
 
 import authRoutes from './features/auth/routes/auth.routes';
+import tenantRoutes from './features/tenant/routes/tenant.routes';
 import testRoutes from './features/test/routes/test.routes';
 import { apiErrorHandler, unmatchedRoutes } from './middleware/api-error.middleware';
 import { attachUserContext } from './middleware/clerk-auth.middleware';
@@ -37,6 +38,7 @@ app.get('/heartbeat', (req: Request, res: Response): void => {
 
 // ─── Public Routes ───
 app.use('/v1/auth', authRoutes);
+app.use('/v1/tenants', tenantRoutes);
 
 // ─── Testing Routes (development only) ───
 app.use('/test', testRoutes);

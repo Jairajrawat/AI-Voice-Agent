@@ -2,7 +2,12 @@ import { getAuth } from '@clerk/express';
 import { Request, Response } from 'express';
 import { Router } from 'express';
 
+import tenantTestRoutes from './test-tenant.routes';
+
 const router = Router();
+
+// Mount tenant test routes
+router.use('/', tenantTestRoutes);
 
 /**
  * Testing routes - No validation, for development only
