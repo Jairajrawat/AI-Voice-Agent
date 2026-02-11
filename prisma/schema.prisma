@@ -271,6 +271,7 @@ model AgentConfig {
   // Feature Flags
   enableMemory     Boolean @default(true)
   enableExtraction Boolean @default(true)
+  enableRecording  Boolean @default(false)
 
   // Extraction Schemas (JSON array of schema definitions)
   extractionSchemas Json?

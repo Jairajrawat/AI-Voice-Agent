@@ -3,6 +3,7 @@ import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
 
+import agentConfigRoutes from './features/agent-config/routes/agent-config.routes';
 import authRoutes from './features/auth/routes/auth.routes';
 import tenantRoutes from './features/tenant/routes/tenant.routes';
 import userRoutes from './features/tenant-users/routes/user.routes';
@@ -41,6 +42,7 @@ app.get('/heartbeat', (req: Request, res: Response): void => {
 app.use('/v1/auth', authRoutes);
 app.use('/v1/tenants', tenantRoutes);
 app.use('/v1/tenants/:tenantId/users', userRoutes);
+app.use('/v1/tenants/:tenantId/agent-config', agentConfigRoutes);
 
 // ─── Testing Routes (development only) ───
 app.use('/test', testRoutes);
