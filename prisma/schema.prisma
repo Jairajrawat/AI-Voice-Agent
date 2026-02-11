@@ -1,33 +1,362 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// AI Voice Platform — Prisma Schema
+// Based on VOICE_PLATFORM_SPEC.md §6
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+// ============================================
+// TENANT & AUTHENTICATION
+// ============================================
+
+model Tenant {
+  id        String       @id @default(uuid())
+  name      String
+  slug      String       @unique
+  industry  Industry
+  status    TenantStatus @default(ACTIVE)
+  plan      Plan         @default(STARTER)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  
+  // Data retention settings
+  dataRetentionDays Int      @default(15)
+  saveCallRecordings Boolean @default(false)
+
+  // Relations
+  users        User[]
+  phoneNumbers PhoneNumber[]
+  callers      Caller[]
+  calls        Call[]
+  agentConfig  AgentConfig?
+  knowledge    KnowledgeItem[]
+
+  @@index([slug])
+}
+
+enum Industry {
+  HEALTHCARE
+  RESTAURANT
+  SERVICES
+  RETAIL
+  OTHER
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+enum Plan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
 }
 
 model User {
   id        String   @id @default(uuid())
-  firstName String?
-  lastName  String?
-  email     String   @unique
-  password  String?
-  roleId    String?
+  clerkId   String   @unique // Clerk user ID
+  email     String
+  name      String?
+  role      UserRole @default(MEMBER)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  // Relationships
-  role      Roles?   @relation(fields: [roleId], references: [id])
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
 }
 
-model Roles {
-  id     String @id @default(uuid())
-  name   String
-  active Int    @default(1) @db.SmallInt
-  user   User[]
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+  SUPER_ADMIN // Platform-level admin (not tenant-specific)
+}
+
+// ============================================
+// PHONE NUMBERS
+// ============================================
+
+model PhoneNumber {
+  id        String   @id @default(uuid())
+  number    String   @unique
+  provider  Provider @default(EXOTEL)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  label     String? // e.g., "Main Line", "Support"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  calls Call[]
+
+  @@index([tenantId])
+  @@index([number])
+}
+
+enum Provider {
+  EXOTEL
+  TWILIO
+  PLIVO
+  VONAGE
+}
+
+// ============================================
+// CALLERS (Customers who call)
+// ============================================
+
+model Caller {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  phoneNumber String
+  name        String?
+  email       String?
+  preferences Json? // Stored preferences
+  metadata    Json? // Custom fields
+  firstCallAt DateTime @default(now())
+  lastCallAt  DateTime @default(now())
+  totalCalls  Int      @default(1)
+  
+  // Data retention
+  isSaved     Boolean  @default(false)
+  expiresAt   DateTime?
+
+  calls Call[]
+
+  @@unique([tenantId, phoneNumber])
+  @@index([tenantId])
+  @@index([phoneNumber])
+  @@index([expiresAt])
+}
+
+// ============================================
+// CALLS & TRANSCRIPTS
+// ============================================
+
+model Call {
+  id            String        @id @default(uuid())
+  externalId    String?       @unique // Exotel/Plivo call SID/UUID
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  phoneNumberId String
+  phoneNumber   PhoneNumber   @relation(fields: [phoneNumberId], references: [id])
+  callerId      String
+  caller        Caller        @relation(fields: [callerId], references: [id])
+
+  direction    CallDirection @default(INBOUND)
+  status       CallStatus    @default(RINGING)
+  provider     Provider      @default(EXOTEL)
+
+  startedAt    DateTime  @default(now())
+  answeredAt   DateTime?
+  endedAt      DateTime?
+  durationSecs Int?
+
+  summary   String?    // AI-generated summary
+  sentiment Sentiment?
+
+  // Vocode integration
+  vocodeConversationId String? // Maps to Vocode conversation_id
+
+  transcripts Transcript[]
+  extractions Extraction[]
+  recordings  Recording[]
+
+  @@index([tenantId])
+  @@index([callerId])
+  @@index([startedAt])
+  @@index([externalId])
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  RINGING
+  CONNECTING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  NO_ANSWER
+  TRANSFERRED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model Transcript {
+  id         String   @id @default(uuid())
+  callId     String
+  call       Call     @relation(fields: [callId], references: [id])
+  role       Speaker
+  content    String
+  timestamp  DateTime @default(now())
+  confidence Float? // STT confidence score
+
+  @@index([callId])
+}
+
+enum Speaker {
+  CALLER
+  AGENT
+}
+
+// ============================================
+// EXTRACTIONS (Structured Data from AI)
+// ============================================
+
+model Extraction {
+  id         String   @id @default(uuid())
+  callId     String
+  call       Call     @relation(fields: [callId], references: [id])
+  type       String // e.g., "appointment", "order", "symptom"
+  data       Json // The extracted structured data
+  confidence Float? // Extraction confidence
+  createdAt  DateTime @default(now())
+
+  @@index([callId])
+  @@index([type])
+}
+
+// ============================================
+// AGENT CONFIGURATION (per tenant)
+// ============================================
+
+model AgentConfig {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  // AI Agent Settings
+  systemPrompt String  @db.Text
+  voiceId      String? // TTS voice ID
+  language     String  @default("en-IN")
+
+  // Provider Selection (switchable per tenant via super admin)
+  telephonyProvider TelephonyProvider @default(EXOTEL)
+  sttProvider       STTProvider       @default(DEEPGRAM)
+  ttsProvider       TTSProvider       @default(AZURE)
+  llmProvider       LLMProvider       @default(OPENAI)
+  llmModel          String            @default("gpt-4o-mini")
+
+  // Provider API Keys (tenant-specific overrides, optional)
+  sttApiKey String?
+  ttsApiKey String?
+  llmApiKey String?
+  
+  // Encrypted provider API keys (for custom integrations)
+  providerApiKeys String? @db.Text
+
+  // Behavior
+  maxCallDuration Int     @default(300) // seconds
+  greeting        String?
+  fallbackMessage String?
+
+  // Feature Flags
+  enableMemory     Boolean @default(true)
+  enableExtraction Boolean @default(true)
+
+  // Extraction Schemas (JSON array of schema definitions)
+  extractionSchemas Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TelephonyProvider {
+  EXOTEL
+  TWILIO
+  PLIVO
+  VONAGE
+}
+
+enum STTProvider {
+  DEEPGRAM
+  GOOGLE
+  ASSEMBLY_AI
+  AZURE
+  SARVAM
+}
+
+enum TTSProvider {
+  AZURE
+  ELEVEN_LABS
+  GOOGLE
+  PLAY_HT
+  CARTESIA
+  SARVAM
+}
+
+enum LLMProvider {
+  OPENAI
+  ANTHROPIC
+  GROQ
+}
+
+// ============================================
+// KNOWLEDGE BASE (for RAG)
+// ============================================
+
+model KnowledgeItem {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  title     String
+  content   String   @db.Text
+  category  String?
+  embedding Unsupported("vector")? // pgvector for semantic search
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+// ============================================
+// CALL RECORDINGS
+// ============================================
+
+model Recording {
+  id        String   @id @default(uuid())
+  callId    String
+  call      Call     @relation(fields: [callId], references: [id])
+  url       String   // Local file path
+  format    String   @default("wav")
+  sizeBytes Int?
+  createdAt DateTime @default(now())
+
+  @@index([callId])
+}
+
+// ============================================
+// WEBHOOK LOGS (for debugging)
+// ============================================
+
+model WebhookLog {
+  id           String   @id @default(uuid())
+  provider     String   // exotel | plivo | twilio
+  endpoint     String
+  payload      Json
+  signature    String?
+  responseStatus Int?
+  responseBody String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([provider])
+  @@index([createdAt])
 }
