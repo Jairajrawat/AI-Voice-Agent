@@ -5,9 +5,15 @@ import { ZodSchema } from 'zod';
 /**
  * Validation middleware for request data using Zod
  */
-export const validateRequest = (schema: ZodSchema<unknown>) => {
+export const validateRequest = (
+  schema: ZodSchema<unknown>,
+  source: 'body' | 'query' | 'params' = 'body',
+) => {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const validationResult = schema.safeParse(req.body);
+    const dataToValidate =
+      source === 'body' ? req.body : source === 'query' ? req.query : req.params;
+
+    const validationResult = schema.safeParse(dataToValidate);
 
     if (!validationResult.success) {
       // Extract error messages
@@ -23,7 +29,11 @@ export const validateRequest = (schema: ZodSchema<unknown>) => {
     }
 
     // Attach parsed data to the request object (optional, but useful)
-    req.body = validationResult.data;
+    if (source === 'body') {
+      req.body = validationResult.data;
+    } else if (source === 'query') {
+      req.query = validationResult.data as any;
+    }
 
     // Call next middleware if validation passes
     next();
