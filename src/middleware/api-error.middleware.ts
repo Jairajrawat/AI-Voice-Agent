@@ -38,7 +38,7 @@ const checkContentTypeAsURLEncodedFormData = (
 
 // Middleware to check host whitelist
 const apiErrorHandler = (
-  err: ErrorRequestHandler,
+  err: Error,
   req: Request,
   res: Response,
 
@@ -59,9 +59,10 @@ const apiErrorHandler = (
   }
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     // Handle Prisma validation errors
-    if (err.meta) {
-      const firstKey = Object.keys(err?.meta)[0];
-      const cause = err?.meta[firstKey] as string;
+    const prismaError = err as Prisma.PrismaClientKnownRequestError;
+    if (prismaError.meta) {
+      const firstKey = Object.keys(prismaError.meta)[0];
+      const cause = prismaError.meta[firstKey] as string;
       res.status(400).json(unifiedResponse(false, `Provided field id not found, ${cause}`));
       return;
     }

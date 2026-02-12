@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { PrismaService } from '../../../config/prisma.config';
 import { validateRequest } from '../../../middleware/validation.middleware';
-import { TenantController } from './tenant.controller';
+import { TenantController } from '../controllers/tenant.controller';
 import { TenantRepository } from '../repositories/tenant.repository';
 import { TenantService } from '../services/tenant.service';
 import { createTenantSchema, updateTenantSchema } from '../schemas/tenant.schema';

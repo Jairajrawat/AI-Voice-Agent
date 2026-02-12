@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { ClerkWebhookController } from './controllers/clerk-webhook.controller';
+import { ClerkWebhookController } from '../controllers/clerk-webhook.controller';
 
 const router = Router();
 const clerkWebhookController = new ClerkWebhookController();

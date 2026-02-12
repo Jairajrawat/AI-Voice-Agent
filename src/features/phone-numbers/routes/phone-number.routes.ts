@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { PrismaService } from '../../../config/prisma.config';
 import { validateRequest } from '../../../middleware/validation.middleware';
-import { PhoneNumberController } from './phone-number.controller';
+import { PhoneNumberController } from '../controllers/phone-number.controller';
 import { PhoneNumberRepository } from '../repositories/phone-number.repository';
 import { PhoneNumberService } from '../services/phone-number.service';
 import { createPhoneNumberSchema, updatePhoneNumberSchema } from '../schemas/phone-number.schema';

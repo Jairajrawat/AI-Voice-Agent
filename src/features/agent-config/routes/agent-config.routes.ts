@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { PrismaService } from '../../../config/prisma.config';
 import { validateRequest } from '../../../middleware/validation.middleware';
-import { AgentConfigController } from './agent-config.controller';
+import { AgentConfigController } from '../controllers/agent-config.controller';
 import { AgentConfigRepository } from '../repositories/agent-config.repository';
 import { AgentConfigService } from '../services/agent-config.service';
 import { createAgentConfigSchema, updateAgentConfigSchema } from '../schemas/agent-config.schema';

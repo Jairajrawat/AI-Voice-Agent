@@ -27,4 +27,6 @@ export const ERROR = {
   FORBIDDEN: 'Forbidden: Insufficient permissions',
   ROUTE_NOT_FOUND: 'Route not found or wrong API method',
   VOCODE_CONNECTION_FAILED: 'Failed to connect to Vocode server',
+  ORIGIN_HEADER_IS_MISSING: 'Origin header is missing',
+  ACCESS_FORBIDDEN: 'Access forbidden',
 };
