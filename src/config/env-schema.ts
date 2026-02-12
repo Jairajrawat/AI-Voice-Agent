@@ -42,10 +42,12 @@ export const envSchema = z.object({
   EXOTEL_API_KEY: z.string().optional(),
   EXOTEL_API_TOKEN: z.string().optional(),
   EXOTEL_SUBDOMAIN: z.string().default('api'),
+  EXOTEL_WEBHOOK_SECRET: z.string().optional(),
 
   // Plivo (global telephony)
   PLIVO_AUTH_ID: z.string().optional(),
   PLIVO_AUTH_TOKEN: z.string().optional(),
+  PLIVO_WEBHOOK_SECRET: z.string().optional(),
 
   // Sarvam AI (Indian STT/TTS)
   SARVAM_API_KEY: z.string().optional(),

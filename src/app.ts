@@ -8,6 +8,8 @@ import authRoutes from './features/auth/routes/auth.routes';
 import phoneNumberRoutes from './features/phone-numbers/routes/phone-number.routes';
 import tenantRoutes from './features/tenant/routes/tenant.routes';
 import userRoutes from './features/tenant-users/routes/user.routes';
+import exotelWebhookRoutes from './features/webhooks/exotel/exotel.routes';
+import plivoWebhookRoutes from './features/webhooks/plivo/plivo.routes';
 import testRoutes from './features/test/routes/test.routes';
 import { apiErrorHandler, unmatchedRoutes } from './middleware/api-error.middleware';
 import { attachUserContext } from './middleware/clerk-auth.middleware';
@@ -55,7 +57,8 @@ app.use(attachUserContext);
 // app.use('/v1/admin', requireApiAuth, superAdminRoutes);
 
 // ─── Webhook Routes (no auth — verified by signature) ───
-// app.use('/webhooks', webhookRoutes);
+app.use('/webhooks/exotel', exotelWebhookRoutes);
+app.use('/webhooks/plivo', plivoWebhookRoutes);
 
 // ─── Internal API Routes (Vocode → Backend) ───
 // app.use('/api/calls', callRoutes);
