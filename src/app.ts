@@ -8,6 +8,7 @@ import authRoutes from './features/auth/routes/auth.routes';
 import callRoutes from './features/calls/routes/call.routes';
 import internalCallRoutes from './features/calls/internal/routes/internal.routes';
 import callerRoutes from './features/callers/routes/caller.routes';
+import knowledgeRoutes from './features/knowledge/routes/knowledge.routes';
 import phoneNumberRoutes from './features/phone-numbers/routes/phone-number.routes';
 import tenantRoutes from './features/tenant/routes/tenant.routes';
 import userRoutes from './features/tenant-users/routes/user.routes';
@@ -52,6 +53,7 @@ app.use('/v1/tenants/:tenantId/agent-config', agentConfigRoutes);
 app.use('/v1/tenants/:tenantId/phone-numbers', phoneNumberRoutes);
 app.use('/v1/tenants/:tenantId/calls', callRoutes);
 app.use('/v1/tenants/:tenantId/callers', callerRoutes);
+app.use('/v1/tenants/:tenantId/knowledge', knowledgeRoutes);
 
 // ─── Testing Routes (development only) ───
 app.use('/test', testRoutes);
