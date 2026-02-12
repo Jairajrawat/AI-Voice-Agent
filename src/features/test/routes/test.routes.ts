@@ -2,6 +2,7 @@ import { getAuth } from '@clerk/express';
 import { Request, Response } from 'express';
 import { Router } from 'express';
 
+import cleanupTestRoutes from './test-cleanup.routes';
 import tenantTestRoutes from './test-tenant.routes';
 import userTestRoutes from './test-user.routes';
 
@@ -10,6 +11,7 @@ const router = Router();
 // Mount test routes
 router.use('/', tenantTestRoutes);
 router.use('/', userTestRoutes);
+router.use('/', cleanupTestRoutes);
 
 /**
  * Testing routes - No validation, for development only
