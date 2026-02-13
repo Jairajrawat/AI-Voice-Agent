@@ -10,8 +10,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext ts --fix",
     "format": "prettier --write .",
-    "test": "vitest",
-    "test:ci": "vitest --run",
+    "test": "vitest --pool=forks --maxWorkers=1 --minWorkers=1",
+    "test:ci": "vitest --run --pool=forks --maxWorkers=1 --minWorkers=1",
     "prepare": "npx husky install"
   },
   "keywords": [
@@ -59,7 +59,7 @@
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.7.69",
-    "@prisma/client": "^5.15.0",
+    "@prisma/client": "^6.19.2",
     "axios": "^1.13.5",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

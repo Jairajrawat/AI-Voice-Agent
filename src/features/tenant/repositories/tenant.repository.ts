@@ -1,4 +1,4 @@
-import { PrismaClient, Tenant, Prisma } from '@prisma/client';
+import { Prisma,PrismaClient, Tenant } from '@prisma/client';
 
 import { CreateTenantInput, UpdateTenantInput } from '../schemas/tenant.schema';
 

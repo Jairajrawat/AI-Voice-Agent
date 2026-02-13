@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction,Request, Response } from 'express';
 
-import { KnowledgeService } from '../services/knowledge.service';
 import { CreateKnowledgeItemInput, UpdateKnowledgeItemInput } from '../schemas/knowledge.schema';
+import { KnowledgeService } from '../services/knowledge.service';
 
 export class KnowledgeController {
   private knowledgeService: KnowledgeService;

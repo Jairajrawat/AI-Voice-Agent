@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 
-import { CreateUserInput, UpdateUserInput } from '../schemas/user.schema';
 import { UserRepository } from '../repositories/user.repository';
+import { CreateUserInput, UpdateUserInput } from '../schemas/user.schema';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}

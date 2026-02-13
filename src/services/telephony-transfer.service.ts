@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { Call, Provider } from '@prisma/client';
+import axios from 'axios';
 
 import { env } from '../config/env-config';
 

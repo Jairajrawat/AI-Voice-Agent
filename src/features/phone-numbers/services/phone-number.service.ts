@@ -1,7 +1,7 @@
 import { PhoneNumber } from '@prisma/client';
 
-import { CreatePhoneNumberInput, UpdatePhoneNumberInput } from '../schemas/phone-number.schema';
 import { PhoneNumberRepository } from '../repositories/phone-number.repository';
+import { CreatePhoneNumberInput, UpdatePhoneNumberInput } from '../schemas/phone-number.schema';
 
 export class PhoneNumberService {
   constructor(private phoneNumberRepository: PhoneNumberRepository) {}

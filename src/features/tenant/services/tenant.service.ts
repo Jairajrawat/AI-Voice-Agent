@@ -1,7 +1,7 @@
 import { Tenant } from '@prisma/client';
 
-import { CreateTenantInput, UpdateTenantInput } from '../schemas/tenant.schema';
 import { TenantRepository } from '../repositories/tenant.repository';
+import { CreateTenantInput, UpdateTenantInput } from '../schemas/tenant.schema';
 
 export class TenantService {
   constructor(private tenantRepository: TenantRepository) {}

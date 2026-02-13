@@ -1,7 +1,7 @@
+import crypto from 'crypto';
 import { NextFunction, Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { unifiedResponse } from 'uni-response';
-import crypto from 'crypto';
 
 import { env } from '../config/env-config';
 

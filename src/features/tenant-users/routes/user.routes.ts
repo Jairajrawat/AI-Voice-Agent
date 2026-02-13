@@ -4,8 +4,8 @@ import { PrismaService } from '../../../config/prisma.config';
 import { validateRequest } from '../../../middleware/validation.middleware';
 import { UserController } from '../controllers/user.controller';
 import { UserRepository } from '../repositories/user.repository';
-import { UserService } from '../services/user.service';
 import { createUserSchema, updateUserSchema } from '../schemas/user.schema';
+import { UserService } from '../services/user.service';
 
 // Dependency Injection
 const prismaService = PrismaService.getInstance();

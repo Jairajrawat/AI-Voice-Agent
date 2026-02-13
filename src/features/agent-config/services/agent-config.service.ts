@@ -1,7 +1,7 @@
 import { AgentConfig } from '@prisma/client';
 
-import { CreateAgentConfigInput, UpdateAgentConfigInput } from '../schemas/agent-config.schema';
 import { AgentConfigRepository } from '../repositories/agent-config.repository';
+import { CreateAgentConfigInput, UpdateAgentConfigInput } from '../schemas/agent-config.schema';
 
 export class AgentConfigService {
   constructor(private agentConfigRepository: AgentConfigRepository) {}

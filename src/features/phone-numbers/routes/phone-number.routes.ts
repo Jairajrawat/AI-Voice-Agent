@@ -4,8 +4,8 @@ import { PrismaService } from '../../../config/prisma.config';
 import { validateRequest } from '../../../middleware/validation.middleware';
 import { PhoneNumberController } from '../controllers/phone-number.controller';
 import { PhoneNumberRepository } from '../repositories/phone-number.repository';
-import { PhoneNumberService } from '../services/phone-number.service';
 import { createPhoneNumberSchema, updatePhoneNumberSchema } from '../schemas/phone-number.schema';
+import { PhoneNumberService } from '../services/phone-number.service';
 
 // Dependency Injection
 const prismaService = PrismaService.getInstance();

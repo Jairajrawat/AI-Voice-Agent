@@ -49,7 +49,7 @@ const apiErrorHandler = (
   }
   if (
     err instanceof SyntaxError &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     (err as any).status === 400 &&
     'body' in err
   ) {

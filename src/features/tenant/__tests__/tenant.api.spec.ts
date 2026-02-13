@@ -1,12 +1,15 @@
 import request from 'supertest';
-import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import { afterAll,beforeAll, describe, expect, it } from 'vitest';
 
+import { shouldRunIntegrationTests } from '../../../__tests__/integration-gate';
 import { app } from '../../../app';
 import { PrismaService } from '../../../config/prisma.config';
 
 const prisma = PrismaService.getInstance().client;
 
-describe('Tenant API Integration Tests', () => {
+const describeIfIntegration = shouldRunIntegrationTests ? describe : describe.skip;
+
+describeIfIntegration('Tenant API Integration Tests', () => {
   let createdTenantId: string;
 
   // Clean up before tests

@@ -4,9 +4,9 @@ import { requireInternalApiSecret } from '../../../../middleware/internal-auth.m
 import { validateRequest } from '../../../../middleware/validation.middleware';
 import { InternalCallController } from '../controllers/internal.controller';
 import {
-  saveTranscriptSchema,
-  saveExtractionSchema,
   completeCallSchema,
+  saveExtractionSchema,
+  saveTranscriptSchema,
   transferCallSchema,
 } from '../schemas/internal.schema';
 

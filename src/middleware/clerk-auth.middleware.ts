@@ -1,8 +1,8 @@
 import { clerkMiddleware, getAuth, requireAuth } from '@clerk/express';
 import { NextFunction, Request, Response } from 'express';
 
-import { PrismaService } from '../config/prisma.config';
 import { env } from '../config/env-config';
+import { PrismaService } from '../config/prisma.config';
 
 // Re-export clerkMiddleware for global use
 export { clerkMiddleware, requireAuth };
@@ -139,6 +139,44 @@ export const requireTenant = (req: Request, res: Response, next: NextFunction): 
   }
 
   next();
+};
+
+/**
+ * Enforce tenant scope from route params.
+ * SUPER_ADMIN can access any tenant.
+ */
+export const requireTenantScope = (
+  paramName: 'tenantId' | 'id' = 'tenantId',
+) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authContext = (req as any).auth as
+      | { tenantId?: string | null; role?: string | null }
+      | undefined;
+    const routeTenantId = req.params[paramName];
+
+    if (!routeTenantId) {
+      res.status(400).json({
+        success: false,
+        message: 'Tenant route parameter missing',
+      });
+      return;
+    }
+
+    if (authContext?.role === 'SUPER_ADMIN') {
+      next();
+      return;
+    }
+
+    if (!authContext?.tenantId || authContext.tenantId !== routeTenantId) {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden: cannot access another tenant's data",
+      });
+      return;
+    }
+
+    next();
+  };
 };
 
 /**
