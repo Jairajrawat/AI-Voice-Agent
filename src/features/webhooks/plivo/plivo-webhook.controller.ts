@@ -86,6 +86,10 @@ export class PlivoWebhookController {
         sttApiKey: contextResult.context.sttApiKey,
         ttsApiKey: contextResult.context.ttsApiKey,
         llmApiKey: contextResult.context.llmApiKey,
+        provider: 'plivo',
+        fromPhone: From,
+        toPhone: To,
+        providerCallId: CallUUID,
         context: {
           callerContext: contextResult.context.callerContext,
           memoryPrompt: contextResult.context.enableMemory

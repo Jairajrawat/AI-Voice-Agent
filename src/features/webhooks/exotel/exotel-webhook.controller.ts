@@ -106,6 +106,10 @@ export class ExotelWebhookController {
         sttApiKey: contextResult.context.sttApiKey,
         ttsApiKey: contextResult.context.ttsApiKey,
         llmApiKey: contextResult.context.llmApiKey,
+        provider: 'exotel',
+        fromPhone: From,
+        toPhone: To,
+        providerCallId: CallSid,
         context: {
           callerContext: contextResult.context.callerContext,
           memoryPrompt: contextResult.context.enableMemory

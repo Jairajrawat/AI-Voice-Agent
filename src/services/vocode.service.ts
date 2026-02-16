@@ -37,6 +37,10 @@ export class VocodeService {
     sttApiKey?: string;
     ttsApiKey?: string;
     llmApiKey?: string;
+    provider?: string;
+    fromPhone?: string;
+    toPhone?: string;
+    providerCallId?: string;
     context?: any;
   }): Promise<{ success: boolean; conversationId?: string; error?: string }> {
     try {
@@ -52,6 +56,10 @@ export class VocodeService {
         stt_api_key: config.sttApiKey,
         tts_api_key: config.ttsApiKey,
         llm_api_key: config.llmApiKey,
+        provider: config.provider,
+        from_phone: config.fromPhone,
+        to_phone: config.toPhone,
+        provider_call_id: config.providerCallId,
         context: config.context,
       });
 

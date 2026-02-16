@@ -106,6 +106,10 @@ export class TwilioWebhookController {
           sttApiKey: contextResult.context.sttApiKey,
           ttsApiKey: contextResult.context.ttsApiKey,
           llmApiKey: contextResult.context.llmApiKey,
+          provider: 'twilio',
+          fromPhone: From,
+          toPhone: To,
+          providerCallId: CallSid,
           context: {
             callerContext: contextResult.context.callerContext,
             memoryPrompt: contextResult.context.enableMemory
