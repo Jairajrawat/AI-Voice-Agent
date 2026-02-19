@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from vocode.streaming.models.agent import ChatGPTAgentConfig, GroqAgentConfig
 from vocode.streaming.models.message import BaseMessage
 from vocode.streaming.models.synthesizer import (
+    AZURE_SYNTHESIZER_DEFAULT_VOICE_NAME,
     AzureSynthesizerConfig,
     ElevenLabsSynthesizerConfig,
     SarvamSynthesizerConfig,
@@ -189,7 +190,7 @@ async def create_conversation(
         synthesizer_config = AzureSynthesizerConfig(
             sampling_rate=TwilioCallConfig.default_synthesizer_config().sampling_rate,
             audio_encoding=TwilioCallConfig.default_synthesizer_config().audio_encoding,
-            voice_name=payload.voice_id or AzureSynthesizerConfig().voice_name,
+            voice_name=payload.voice_id or AZURE_SYNTHESIZER_DEFAULT_VOICE_NAME,
         )
 
     conversation_id = create_conversation_id()
