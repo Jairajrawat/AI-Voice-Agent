@@ -9,4 +9,4 @@ RUN poetry install --only main --no-interaction --no-ansi
 COPY main.py /code/main.py
 COPY speller_agent.py /code/speller_agent.py
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-3000}"]
