@@ -3,7 +3,14 @@ import queue
 from typing import Optional
 
 import numpy as np
-import sounddevice as sd
+
+# `sounddevice` depends on the system PortAudio library. In server/container deployments (e.g. Render),
+# PortAudio is often not installed, and importing `sounddevice` can raise `OSError: PortAudio library not found`.
+# This output device is only needed when playing audio to a local speaker, so make the dependency optional.
+try:
+    import sounddevice as sd  # type: ignore
+except Exception:  # pragma: no cover
+    sd = None  # type: ignore
 
 from vocode.streaming.models.audio import AudioEncoding
 from vocode.streaming.output_device.rate_limit_interruptions_output_device import (
@@ -17,6 +24,10 @@ DEFAULT_SAMPLING_RATE = 44100
 class _PlaybackWorker(ThreadAsyncWorker[bytes]):
 
     def __init__(self, *, device_info: dict, sampling_rate: int):
+        if sd is None:
+            raise RuntimeError(
+                "sounddevice/PortAudio is not available. Install PortAudio system deps to use speaker output."
+            )
         self.sampling_rate = sampling_rate
         self.device_info = device_info
         super().__init__()
@@ -74,4 +85,8 @@ class BlockingSpeakerOutput(RateLimitInterruptionsOutputDevice):
         cls,
         **kwargs,
     ):
+        if sd is None:
+            raise RuntimeError(
+                "sounddevice/PortAudio is not available. Install PortAudio system deps to use speaker output."
+            )
         return cls(sd.query_devices(kind="output"), **kwargs)
