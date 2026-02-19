@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from fastapi import Body, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic.v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 
 from vocode.streaming.models.agent import ChatGPTAgentConfig, GroqAgentConfig
 from vocode.streaming.models.message import BaseMessage
