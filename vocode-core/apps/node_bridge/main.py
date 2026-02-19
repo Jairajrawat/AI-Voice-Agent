@@ -1,7 +1,9 @@
 import os
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic.v1 import BaseModel, Field
 
 from vocode.streaming.models.agent import ChatGPTAgentConfig, GroqAgentConfig
@@ -82,6 +84,26 @@ app = FastAPI(docs_url=None)
 
 BASE_URL = _normalize_base_url(os.environ.get("BASE_URL"))
 config_manager = _get_config_manager()
+
+# Log request validation failures (422) to make debugging deployments easier.
+@app.exception_handler(RequestValidationError)
+async def request_validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    # FastAPI will return a 422 by default; this handler just ensures the details are visible in logs.
+    try:
+        from loguru import logger
+
+        logger.error(
+            "Request validation error on {} {}: {} | body={}",
+            request.method,
+            request.url.path,
+            exc.errors(),
+            getattr(exc, "body", None),
+        )
+    except Exception:
+        pass
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 # Websocket endpoint used by Twilio <Connect><Stream url="wss://.../connect_call/{conversationId}">
 app.include_router(CallsRouter(base_url=BASE_URL, config_manager=config_manager).get_router())
@@ -199,4 +221,3 @@ async def end_conversation(conversation_id: str) -> Dict[str, str]:
 @app.post("/conversations/{conversation_id}/transfer", dependencies=[Depends(_auth)])
 async def transfer_conversation(conversation_id: str) -> Dict[str, str]:
     raise HTTPException(status_code=501, detail="Transfer not implemented in node_bridge.")
-
