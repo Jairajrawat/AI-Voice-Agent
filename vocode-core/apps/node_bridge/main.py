@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Body, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic.v1 import BaseModel, Field
@@ -115,7 +115,9 @@ def health() -> Dict[str, str]:
 
 
 @app.post("/conversations", response_model=CreateConversationResponse, dependencies=[Depends(_auth)])
-async def create_conversation(payload: CreateConversationRequest) -> CreateConversationResponse:
+async def create_conversation(
+    payload: CreateConversationRequest = Body(...)
+) -> CreateConversationResponse:
     if payload.provider.lower() != "twilio":
         raise HTTPException(
             status_code=400,
