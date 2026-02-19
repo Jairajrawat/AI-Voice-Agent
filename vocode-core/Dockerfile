@@ -22,5 +22,5 @@ COPY apps/node_bridge /app/apps/node_bridge
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["uvicorn", "apps.node_bridge.main:app", "--host", "0.0.0.0", "--port", "3000"]
-
+# Bind to Render's injected PORT when present.
+CMD ["sh", "-c", "uvicorn apps.node_bridge.main:app --host 0.0.0.0 --port ${PORT:-3000}"]
