@@ -10,10 +10,11 @@ WORKDIR /app
 
 COPY pyproject.toml /app/pyproject.toml
 COPY poetry.lock /app/poetry.lock
+COPY README.md /app/README.md
 
 RUN pip install --no-cache-dir --upgrade pip poetry \
   && poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi --only main
+  && poetry install --no-interaction --no-ansi --only main --no-root
 
 # Copy library and bridge app code.
 COPY vocode /app/vocode
