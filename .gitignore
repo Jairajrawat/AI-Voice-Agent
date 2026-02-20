@@ -17,6 +17,7 @@ Thumbs.db
 # Local env files
 .env
 .env.dev
+env
 
 # Ignore Node.js modules
 node_modules/
