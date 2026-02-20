@@ -1,47 +1,46 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 
-import { envSchema, EnvVars } from './env-schema';
+import { EnvVars, envSchema } from './env-schema';
 
-// Determine which .env file to load based on NODE_ENV
- 
-const envFile = `.env.${process.env.NODE_ENV || 'dev'}`;
+const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
-if (fs.existsSync(envFile)) {
-  dotenv.config({ path: envFile });
-   
-  console.log(`✅ Loaded environment: ${envFile}\nNODE_ENV: ${process.env.NODE_ENV}`);
+// Load local env files when present. In hosted envs (e.g. Render), you typically
+// set environment variables in the dashboard and won't have a .env file on disk.
+const candidateEnvFiles =
+  NODE_ENV === 'development'
+    ? [`.env.${NODE_ENV}`, '.env.dev', '.env']
+    : [`.env.${NODE_ENV}`, '.env'];
+
+const envFileToLoad = candidateEnvFiles.find(file => fs.existsSync(file));
+if (envFileToLoad) {
+  dotenv.config({ path: envFileToLoad });
+  console.log(`[env] Loaded ${envFileToLoad} (NODE_ENV=${NODE_ENV})`);
 } else {
-  console.warn(`⚠️ Warning: Environment file "${envFile}" not found. Using defaults.`);
+  console.warn(
+    `[env] No local .env file found (${candidateEnvFiles.join(', ')}). Using process.env only.`,
+  );
 }
 
- 
 const parsedEnv = envSchema.safeParse(process.env);
- 
-const NODE_ENV = process.env.NODE_ENV || 'development';
 
 if (!parsedEnv.success) {
   const formattedErrors = parsedEnv.error.format();
   const missingKeys = Object.keys(formattedErrors).filter(key => key !== '_errors');
 
   console.error(
-    `❌ Missing environment variables in "${NODE_ENV}" .env file:\n${missingKeys.join(', ')}`,
+    `[env] Missing required environment variables (NODE_ENV=${NODE_ENV}):\n${missingKeys.join(', ')}`,
   );
-  process.exit(1); // Stop execution if required env variables are missing
+  process.exit(1);
 }
 
-console.log(`Loaded environment: .env.${NODE_ENV}`);
+console.log(`[env] Environment validated (NODE_ENV=${NODE_ENV})`);
 
 export const env: EnvVars = parsedEnv.data;
 
-// ✅ Get only user-defined env variables from `.env`
- 
 const definedEnvKeys = Object.keys(process.env);
-
-// ✅ Allowed environment variables (from schema)
 const allowedKeys = Object.keys(envSchema.shape);
 
-// ✅ System variables to ignore (Windows/Linux/Mac default variables)
 const systemVars = new Set([
   'ACLOCAL_PATH',
   'ALLUSERSPROFILE',
@@ -127,7 +126,6 @@ const systemVars = new Set([
   '_',
 ]);
 
-// ✅ Filter out system variables, only check extra `.env` variables
 const extraKeys = definedEnvKeys.filter(
   key =>
     !allowedKeys.includes(key) &&
@@ -139,5 +137,5 @@ const extraKeys = definedEnvKeys.filter(
 );
 
 if (extraKeys.length > 0) {
-  console.warn(`⚠️ Warning: Unused environment variables detected: ${extraKeys.join(', ')}`);
+  console.warn(`[env] Unused environment variables detected: ${extraKeys.join(', ')}`);
 }
